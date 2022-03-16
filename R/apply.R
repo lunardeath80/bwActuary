@@ -1,7 +1,8 @@
 apply_chainladder <- function(x, lob_name,
                               assumptions) {
   cl_triangles <-
-    c("ep", "wp", "paid", "inc", "reported_no", "settled_no")
+    list("ep", "wp", "paid", "inc", "reported_no", "settled_no") %>%
+    setNames(c("ep", "wp", "paid", "inc", "reported_no", "settled_no"))
 
   apply_trig <- function(trig_name) {
     if (!is.null(assumptions[[trig_name]])) {
@@ -11,13 +12,21 @@ apply_chainladder <- function(x, lob_name,
   }
 
   cl_triangles %>%
-    setNames(cl_triangles) %>%
-    map(apply_trig)
+    lapply(apply_trig) %>%
+    compact
 
 }
 
+apply_chainladder_all <- function(x, lob_assumptions) {
+
+  map2(lob_assumptions, names(lob_assumptions),
+       ~apply_chainladder(x,.y,.x))
+
+}
+
+
 default_assumptions <- list(
-  ep = list(development = 1),
+  ep = NULL,
   wp = list(development = 1),
   paid = list(),
   os = NULL,
@@ -27,3 +36,11 @@ default_assumptions <- list(
 
 )
 
+
+lob_assumptions <- list(
+  "Personal Motor" = default_assumptions
+)
+
+
+cl_result <-
+  apply_chainladder(x, "Personal Motor", default_assumptions)
