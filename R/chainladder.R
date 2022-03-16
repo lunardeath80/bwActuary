@@ -1,5 +1,3 @@
-triangle <- rbind(c(100, 120, 130), c(120, 140, NA), c(130, NA, NA))
-
 chainladder <-
   function(triangle,
            weights = NULL,
@@ -9,32 +7,37 @@ chainladder <-
     link_ratios <- triangle[-1] / triangle[-ncol(triangle)]
 
     if (is.null(development)) {
-      development_assumptions <- calc_development(triangle, ldf, weights, tail)
+      development_assumptions <-
+        calc_development(triangle, ldf, weights, tail)
       development <- development_assumptions$development
       ldf <- c(development_assumptions$ldf, tail)
       weights <- development_assumptions$weights
     }
 
     latest <- diagonal(triangle)
-    ultimate <- latest/rev(development)
+    ultimate <- latest / rev(development)
 
-    list(result = data.frame(Latest = latest,
-               Development = development,
-               Ultimate = ultimate),
-         ldf = ldf,
-         weights = weights)
+    list(
+      result = data.frame(
+        Latest = latest,
+        Development = development,
+        Ultimate = ultimate
+      ),
+      ldf = ldf,
+      triangle = triangle,
+      weights = weights
+    )
 
 
   }
 
 diagonal <- function(triangle, offset = 0) {
-
   if (offset != 0) {
     warning("Non-zero offset not yet supported, returning latest diagonal")
     offset <- 0
   }
-  ratio <- ncol(triangle)/nrow(triangle)
-  sel_cols <- seq(ncol(triangle),1,by = -ratio)
+  ratio <- ncol(triangle) / nrow(triangle)
+  sel_cols <- seq(ncol(triangle), 1, by = -ratio)
   diag <- double(nrow(triangle))
 
   for (i in 1:nrow(triangle)) {
@@ -43,19 +46,29 @@ diagonal <- function(triangle, offset = 0) {
   diag
 }
 
-calc_development <- function(triangle, ldf, weights, tail = 1) {
-  if (is.null(ldf)) {
-    ldf_and_weights<- calc_ldf(triangle, weights)
-    ldf <- ldf_and_weights$ldf
-    weights <- ldf_and_weights$weights
+calc_development <-
+  function(triangle,
+           ldf = NULL,
+           weights = NULL,
+           tail = 1) {
+    if (is.null(ldf)) {
+      ldf_and_weights <- calc_ldf(triangle, weights)
+      ldf <- ldf_and_weights$ldf
+      weights <- ldf_and_weights$weights
+    }
+
+    cdf <- rev(cumprod(rev(c(ldf, tail))))
+    ratio <- ncol(triangle) / nrow(triangle)
+
+    development <- rev(1 / cdf[seq(length(cdf), 1, -ratio)])
+
+    return(list(
+      development = development,
+      ldf = ldf,
+      weights = weights
+    ))
+
   }
-  development <- rev(cumprod(rev(1 / c(ldf, tail))))
-
-  return(list(development = development,
-              ldf = ldf,
-              weights = weights))
-
-}
 
 calc_ldf <- function(triangle, weights) {
   if (is.null(weights)) {
