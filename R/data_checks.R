@@ -1,6 +1,10 @@
-data_checks <- function(x) {
+data_checks_all <- function(x) {
 
   map(x$lobs, check_trig_dep)
+}
+
+data_checks <- function(lob) {
+  check_trig_dep(lob)
 }
 
 check_trig_dep <- function(lob) {
@@ -29,5 +33,3 @@ check_trig_dep <- function(lob) {
     as_tibble()
 
 }
-
-check_trig_dep(x$lobs$`Personal Motor`)

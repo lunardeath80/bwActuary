@@ -1,8 +1,8 @@
 apply_chainladder <- function(x, lob_name,
                               assumptions) {
   cl_trig_names <-
-    list("ep", "wp", "paid", "inc", "reported_no", "settled_no") %>%
-    setNames(c("ep", "wp", "paid", "inc", "reported_no", "settled_no"))
+    list("ep", "wp", "paid", "os", "inc", "reported_no", "settled_no") %>%
+    setNames(c("ep", "wp", "paid", "os", "inc", "reported_no", "settled_no"))
 
   apply_trig <- function(trig_name) {
     if (!is.null(assumptions[[trig_name]])) {
@@ -12,8 +12,7 @@ apply_chainladder <- function(x, lob_name,
   }
 
   cl_trigs <- cl_trig_names %>%
-    lapply(apply_trig) %>%
-    compact
+    lapply(apply_trig)
 
 }
 
@@ -26,9 +25,9 @@ apply_chainladder_all <- function(x, lob_assumptions) {
     tibble(
       Paid = lob$paid$result$Latest,
       OS = lob$os$result$Latest,
-      Inc = lob$os$result$Latest,
-      Paid_Dev = lob$paid$result$Development,
+      Inc = lob$inc$result$Latest,
       Paid_CL = lob$paid$result$Ultimate,
+      Paid_Dev = lob$paid$result$Development,
       Inc_Dev = lob$inc$result$Development,
       Inc_CL = lob$inc$result$Ultimate,
     ) %>%
@@ -45,10 +44,10 @@ apply_chainladder_all <- function(x, lob_assumptions) {
 
 
 default_assumptions <- list(
-  ep = NULL,
+  ep = list(),
   wp = list(development = 1),
   paid = list(),
-  os = NULL,
+  os = list(),
   inc = list(),
   reported_no = list(),
   settled_no = list()

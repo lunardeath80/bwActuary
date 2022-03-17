@@ -46,6 +46,9 @@ diagonal <- function(triangle, offset = 0) {
   diag
 }
 
+calc_link_ratio <- function(triangle){
+  triangle[,-1]/triangle[,-ncol(triangle)]
+}
 calc_development <-
   function(triangle,
            ldf = NULL,
@@ -60,7 +63,7 @@ calc_development <-
     cdf <- rev(cumprod(rev(c(ldf, tail))))
     ratio <- ncol(triangle) / nrow(triangle)
 
-    development <- rev(1 / cdf[seq(length(cdf), 1, -ratio)])
+    development <- 1 / cdf[seq(length(cdf), 1, -ratio)]
 
     return(list(
       development = development,
